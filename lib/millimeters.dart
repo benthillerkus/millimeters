@@ -34,7 +34,7 @@ class Millimeters extends InheritedWidget {
   bool updateShouldNotify(covariant Millimeters oldWidget) {
     return data != oldWidget.data;
   }
-} 
+}
 
 @immutable
 class MillimetersData {
@@ -99,15 +99,16 @@ class _MillimetersFromViewState extends State<_MillimetersFromView> {
   void initState() {
     super.initState();
 
-    (
-      MillimetersPlatform.instance.getPhysicalSize(),
-      MillimetersPlatform.instance.getResolution()
-    ).wait.then(((Size? physical, Size? resolution) value) {
+    MillimetersPlatform.instance.getPhysicalSize().then((Size? value) {
       setState(() {
-        _data = _data.copyWith(
-          physical: value.$1 ?? Size.zero,
-          resolution: value.$2 ?? Size.zero,
-        );
+        _data = _data.copyWith(physical: value ?? Size.zero);
+      });
+      return null;
+    });
+
+    MillimetersPlatform.instance.getResolution().then((Size? value) {
+      setState(() {
+        _data = _data.copyWith(resolution: value ?? Size.zero);
       });
       return null;
     });

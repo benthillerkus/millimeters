@@ -11,6 +11,8 @@ dependencies:
   flutter:
     sdk: flutter
   plugin_platform_interface: ^2.0.2
+  flutter_web_plugins:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:
@@ -41,6 +43,9 @@ flutter:
     # -------------------
       macos:
         pluginClass: MillimetersPlugin
+      web:
+        pluginClass: MillimetersWeb
+        fileName: millimeters_web.dart
     # -------------------
 
   # To add assets to your plugin package, add an assets section, like this:
