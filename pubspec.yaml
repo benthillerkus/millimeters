@@ -1,7 +1,8 @@
 name: millimeters
-description: A new Flutter plugin project.
+description: Determine the screen size in millimeters and size your Widgets to be equally large on every screen.
 version: 0.0.1
-homepage:
+repository: https://github.com/benthillerkus/millimeters
+issue_tracker: https://github.com/benthillerkus/millimeters/issues
 
 environment:
   sdk: '>=3.0.5 <4.0.0'
@@ -37,8 +38,7 @@ flutter:
   plugin:
     platforms:
     # This plugin project was generated without specifying any
-    # platforms with the `--platform` argument. If you see the `some_platform` map below, remove it and
-    # then add platforms following the instruction here:
+    # platforms with the `--platform` argument. Add platforms following the instruction here:
     # https://flutter.dev/docs/development/packages-and-plugins/developing-packages#plugin-platforms
     # -------------------
       macos:
