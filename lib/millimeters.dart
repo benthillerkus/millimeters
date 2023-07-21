@@ -76,8 +76,12 @@ class MillimetersData {
 
   @override
   String toString() {
-    return '${physical.width}mm×${physical.height}mm @ ${resolution.width}px×${resolution.height}px';
+    return '${physical.width.toStringAsFixed(1)}×${physical.height.toStringAsFixed(1)}mm@${resolution.width.round()}×${resolution.height.round()}px';
   }
+}
+
+extension ApplyScalar on Size {
+  Size apply(double Function(double scalar) fn) => Size(fn(width), fn(height));
 }
 
 class _MillimetersFromView extends StatefulWidget {

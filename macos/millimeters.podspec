@@ -5,13 +5,13 @@
 Pod::Spec.new do |s|
   s.name             = 'millimeters'
   s.version          = '0.0.1'
-  s.summary          = 'A new Flutter plugin project.'
+  s.summary          = 'Determine the screen size in millimeters and size your Widgets to be equally large on every screen.'
   s.description      = <<-DESC
-A new Flutter plugin project.
+  Determine the screen size in millimeters and size your Widgets to be equally large on every screen.
                        DESC
   s.homepage         = 'http://example.com'
   s.license          = { :file => '../LICENSE' }
-  s.author           = { 'Your Company' => 'email@example.com' }
+  s.author           = { 'Bent Hillerkus' => 'bent@bent.party' }
 
   s.source           = { :path => '.' }
   s.source_files     = 'Classes/**/*'
