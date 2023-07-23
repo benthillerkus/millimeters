@@ -43,6 +43,8 @@ flutter:
     # -------------------
       macos:
         pluginClass: MillimetersPlugin
+      windows:
+        pluginClass: MillimetersPluginCApi
       web:
         pluginClass: MillimetersWeb
         fileName: millimeters_web.dart
