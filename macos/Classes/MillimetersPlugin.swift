@@ -24,7 +24,7 @@ public class MillimetersPlugin: NSObject, FlutterPlugin {
     switch call.method {
     case "getPlatformVersion":
       result("macOS " + ProcessInfo.processInfo.operatingSystemVersionString)
-    case "getPhysicalSize":
+    case "getSize":
       let size = CGDisplayScreenSize(CGMainDisplayID())
       result(size.dictionaryRepresentation)
     case "getResolution":

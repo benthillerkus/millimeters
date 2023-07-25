@@ -14,10 +14,12 @@ There are probably seldom cases where you actually want physically consistent si
 |                       | Windows | Linux | macOS | Web | Android | iOS |
 |-----------------------|:-------:|:-----:|:-----:|:---:|:-------:|:---:|
 | Resolution            | ✔️ || ✔️ | ✔️ |||
-| Physical Size         | ✔️ || ✔️ ||||
+| Physical Size         | ✔️ || ✔️ | ✔️[^1] |||
 | Multi Window          |||||||
 | Multi Monitor         | ✔️ ||||||
 | Ignore Screen Scaling ||| ✔️ ||||
+
+[^1]: Will be just a static fallback value, as most browser implement millimeters as 96px/25.4
 
 ## Usage
 

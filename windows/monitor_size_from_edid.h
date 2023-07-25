@@ -49,7 +49,7 @@ bool GetSizeForDevID(const CString& TargetDevID, short& WidthMm, short& HeightMm
     DWORD required_size = 0;
     SetupDiGetDeviceInterfaceDetail(devInfo, &device_interface_data, NULL, 0, &required_size, NULL);
     
-    SP_DEVICE_INTERFACE_DETAIL_DATA* device_interface_detail_data;
+    PSP_DEVICE_INTERFACE_DETAIL_DATA device_interface_detail_data;
     device_interface_detail_data = (PSP_DEVICE_INTERFACE_DETAIL_DATA)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, required_size);
     device_interface_detail_data->cbSize = sizeof(*device_interface_detail_data);
     SetupDiGetDeviceInterfaceDetail(devInfo, &device_interface_data, device_interface_detail_data, required_size, NULL, NULL);

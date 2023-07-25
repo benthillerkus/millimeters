@@ -1,13 +1,18 @@
+import 'dart:async';
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'millimeters_method_channel.dart';
 
 abstract class MillimetersPlatform extends PlatformInterface {
   /// Constructs a MillimetersPlatform.
-  MillimetersPlatform({void Function(Size size)? onResolutionChanged})
-      : updateResolution = onResolutionChanged,
+  MillimetersPlatform({
+    StreamController<Size>? resolution,
+    StreamController<Size>? size,
+  })  : resolutionController = resolution ?? StreamController<Size>.broadcast(),
+        sizeController = size ?? StreamController<Size>.broadcast(),
         super(token: _token);
 
   static final Object _token = Object();
@@ -27,13 +32,19 @@ abstract class MillimetersPlatform extends PlatformInterface {
     _instance = instance;
   }
 
-  void Function(Size resolution)? updateResolution;
+  @protected
+  final StreamController<Size> resolutionController;
+  @protected
+  final StreamController<Size> sizeController;
+
+  Stream<Size> get size => sizeController.stream;
+  Stream<Size> get resolution => resolutionController.stream;
 
   Future<String?> getPlatformVersion() {
     throw UnimplementedError('platformVersion() has not been implemented.');
   }
 
-  Future<Size?> getPhysicalSize() {
+  Future<Size?> getSize() {
     throw UnimplementedError('getPhysicalSize() has not been implemented.');
   }
 

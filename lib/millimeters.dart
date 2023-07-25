@@ -5,6 +5,8 @@
 // platforms in the `pubspec.yaml` at
 // https://flutter.dev/docs/development/packages-and-plugins/developing-packages#plugin-platforms.
 
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 
 import 'millimeters_platform_interface.dart';
@@ -101,11 +103,14 @@ class _MillimetersFromViewState extends State<_MillimetersFromView> {
     resolution: Size.zero,
   );
 
+  StreamSubscription<Size>? _physical;
+  StreamSubscription<Size>? _resolution;
+
   @override
   void initState() {
     super.initState();
 
-    MillimetersPlatform.instance.getPhysicalSize().then((Size? value) {
+    MillimetersPlatform.instance.getSize().then((Size? value) {
       setState(() {
         _data = _data.copyWith(physical: value ?? Size.zero);
       });
@@ -119,17 +124,44 @@ class _MillimetersFromViewState extends State<_MillimetersFromView> {
       return null;
     });
 
-    MillimetersPlatform.instance.updateResolution = (Size resolution) {
-      setState(() {
-        _data = _data.copyWith(resolution: resolution);
-      });
-    };
+    _resolution?.cancel();
+    _resolution = MillimetersPlatform.instance.resolution.listen((resolution) {
+      if (resolution != _data.resolution) {
+        setState(() {
+          _data = _data.copyWith(resolution: resolution);
+        });
+      }
+    });
+
+    _physical?.cancel();
+    _physical = MillimetersPlatform.instance.size.listen((physical) {
+      if (physical != _data.physical) {
+        setState(() {
+          _data = _data.copyWith(physical: physical);
+        });
+      }
+    });
   }
 
   @override
   void dispose() {
-    MillimetersPlatform.instance.updateResolution = null;
+    _physical?.cancel();
+    _resolution?.cancel();
     super.dispose();
+  }
+
+  @override
+  void deactivate() {
+    _physical?.pause();
+    _resolution?.pause();
+    super.deactivate();
+  }
+
+  @override
+  void didUpdateWidget(_MillimetersFromView oldWidget) {
+    _physical?.resume();
+    _resolution?.resume();
+    super.didUpdateWidget(oldWidget);
   }
 
   @override

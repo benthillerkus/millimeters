@@ -56,7 +56,7 @@ namespace millimeters {
       }
       result->Success(flutter::EncodableValue(version_stream.str()));
     }
-    else if (method_call.method_name().compare("getPhysicalSize") == 0) {
+    else if (method_call.method_name().compare("getSize") == 0) {
       HWND current_view = registrar->GetView()->GetNativeWindow();
       HMONITOR monitor = MonitorFromWindow(current_view, MONITOR_DEFAULTTONEAREST);
       DISPLAY_DEVICE display_device;

@@ -26,7 +26,7 @@ class MillimetersWeb extends MillimetersPlatform {
   }
 
   @override
-  Future<Size?> getPhysicalSize() async {
+  Future<Size?> getSize() async {
     /// clientWidth and clientHeight are in pixels,
     /// so we have to test for a larger size to minimize rounding errors.
     const multiplicator = 50;

@@ -9,15 +9,20 @@ class MethodChannelMillimeters extends MillimetersPlatform {
   @visibleForTesting
   final methodChannel = const MethodChannel('millimeters');
 
-  MethodChannelMillimeters({super.onResolutionChanged}) {
+  MethodChannelMillimeters() {
     methodChannel.setMethodCallHandler((call) {
       switch ((call.method, call.arguments)) {
         case (
-              "updateResolution",
-              {"Width": final num width, "Height": final num height}
-            )
-            when updateResolution != null:
-          updateResolution!.call(Size(width.toDouble(), height.toDouble()));
+            "updateResolution",
+            {"Width": final num width, "Height": final num height}
+          ):
+          resolutionController.add(Size(width.toDouble(), height.toDouble()));
+          return Future.value(null);
+        case (
+            "updateSize",
+            {"Width": final num width, "Height": final num height}
+          ):
+          sizeController.add(Size(width.toDouble(), height.toDouble()));
           return Future.value(null);
         default:
           return Future(
@@ -36,9 +41,9 @@ class MethodChannelMillimeters extends MillimetersPlatform {
   }
 
   @override
-  Future<Size?> getPhysicalSize() async {
+  Future<Size?> getSize() async {
     final size = await methodChannel
-        .invokeMethod<Map<Object?, Object?>>('getPhysicalSize');
+        .invokeMethod<Map<Object?, Object?>>('getSize');
 
     return switch (size) {
       {"Width": 0 as num, "Height": 0 as num} => null,
