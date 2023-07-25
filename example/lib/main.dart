@@ -106,27 +106,30 @@ class Demo extends StatelessWidget {
             ),
           ),
           Center(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                border: Border.all(
-                  width: 2,
+            child: MouseRegion(
+              cursor: SystemMouseCursors.move,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    width: 2,
+                    color: constraints.isSatisfiedBy(blockSize)
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.error,
+                  ),
                   color: constraints.isSatisfiedBy(blockSize)
-                      ? Theme.of(context).colorScheme.primary
-                      : Theme.of(context).colorScheme.error,
+                      ? Theme.of(context)
+                          .colorScheme
+                          .primaryContainer
+                          .withOpacity(0.33)
+                      : Theme.of(context)
+                          .colorScheme
+                          .errorContainer
+                          .withOpacity(0.33),
                 ),
-                color: constraints.isSatisfiedBy(blockSize)
-                    ? Theme.of(context)
-                        .colorScheme
-                        .primaryContainer
-                        .withOpacity(0.33)
-                    : Theme.of(context)
-                        .colorScheme
-                        .errorContainer
-                        .withOpacity(0.33),
-              ),
-              child: SizedBox.fromSize(
-                size: blockSize,
-                child: const DimensionsIndicator(),
+                child: SizedBox.fromSize(
+                  size: blockSize,
+                  child: const DimensionsIndicator(),
+                ),
               ),
             ),
           ),
