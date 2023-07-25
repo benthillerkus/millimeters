@@ -4,10 +4,20 @@ A Flutter plugin for determining the physical device screen size in millimeters.
 
 ## Functionality
 
-This package depends on native APIs to provide correct values. Typically on Apple platforms (iOS, macOS) these will be correct (aslong as you aren't mirroring your screen), but on other platforms the results can be totally off. This plugins tries its best in delivering correct results, but on some platforms (e.g. Web, Linux) results will probably never be correct.
+This package depends on native APIs to provide correct values. Typically on Apple platforms (iOS, macOS) these will be correct (aslong as you aren't mirroring your screen), but on other platforms the results can be totally off. This plugins tries its best in delivering correct results, but on some platforms (e.g. Web, Android) results may never be correct.
 
-There are probably seldom cases where you actually want physically consistent sizing anyways, previewing other Devices in something like WidgetBook comes to mind, maybe for manuals referencing physical things (print in general), perhaps for QR codes.
-You don't want your regular UI that users click on and interact with to use physically consistent sizes though, as the typical viewing distance can be quite different between platforms.
+There are probably seldom cases where you actually want physically consistent sizing anyways, drawing device frames in something like WidgetBook comes to mind, maybe for manuals referencing physical things (print in general), perhaps for QR codes.<br>
+**You don't want your regular UI that users click on and interact with to use physically consistent sizes, as the typical viewing distance can be quite different between platforms.**
+
+## Supported Features
+
+|                       | Windows | Linux | macOS | Web | Android | iOS |
+|-----------------------|:-------:|:-----:|:-----:|:---:|:-------:|:---:|
+| Resolution            | ✔️ || ✔️ | ✔️ |||
+| Physical Size         | ✔️ || ✔️ ||||
+| Multi Window          |||||||
+| Multi Monitor         | ✔️ ||||||
+| Ignore Screen Scaling ||| ✔️ ||||
 
 ## Usage
 
