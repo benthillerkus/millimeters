@@ -5,8 +5,6 @@
 // platforms in the `pubspec.yaml` at
 // https://flutter.dev/docs/development/packages-and-plugins/developing-packages#plugin-platforms.
 
-import 'dart:async';
-
 import 'package:flutter/widgets.dart';
 
 import 'millimeters_platform_interface.dart';
@@ -104,7 +102,6 @@ class _MillimetersFromViewState extends State<_MillimetersFromView> {
     super.initState();
 
     MillimetersPlatform.instance.getPhysicalSize().then((Size? value) {
-      print("Physical size: $value");
       setState(() {
         _data = _data.copyWith(physical: value ?? Size.zero);
       });
@@ -112,7 +109,6 @@ class _MillimetersFromViewState extends State<_MillimetersFromView> {
     });
 
     MillimetersPlatform.instance.getResolution().then((Size? value) {
-      print("Resolution: $value");
       setState(() {
         _data = _data.copyWith(resolution: value ?? Size.zero);
       });

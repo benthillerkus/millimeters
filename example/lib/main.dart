@@ -1,9 +1,7 @@
-import 'dart:math';
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide GridPaper;
 
 import 'package:millimeters/millimeters.dart';
-import 'package:millimeters_example/arrow.dart';
 import 'package:millimeters_example/dimensions.dart';
 import 'package:millimeters_example/transparent_window.dart'
     if (dart.library.html) 'package:millimeters_example/transparent_window_fallback.dart';
@@ -31,11 +29,12 @@ class MyApp extends StatelessWidget {
         ),
         darkTheme: ThemeData.from(
           colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color.fromARGB(255, 133, 215, 51),
+            seedColor: const Color.fromARGB(255, 59, 158, 73),
             brightness: Brightness.dark,
           ),
           useMaterial3: true,
         ),
+        debugShowCheckedModeBanner: false,
         home: const Scaffold(
           body: Demo(
             blockSize: Size(50, 50),
@@ -63,6 +62,16 @@ class Demo extends StatelessWidget {
     return LayoutBuilder(builder: (context, constraints) {
       return Stack(
         children: [
+          Align(
+            alignment: Alignment.topRight,
+            child: ColoredBox(
+              color: Theme.of(context).colorScheme.surface,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text("Monitor size: $physicalities"),
+              ),
+            ),
+          ),
           Positioned.fill(
             child: GridPaper(
               color: Theme.of(context).colorScheme.tertiary.withOpacity(0.66),
@@ -72,6 +81,30 @@ class Demo extends StatelessWidget {
             ),
           ),
           const DimensionsIndicator(),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: Padding(
+              padding: const EdgeInsets.all(32.0),
+              child: ClipRRect(
+                  borderRadius: BorderRadius.circular(mm(23.25)),
+                  child: switch ((
+                    kDebugMode,
+                    Image.asset(
+                      "assets/euro.webp",
+                      width: mm(23.25),
+                      height: mm(23.25),
+                      semanticLabel: "1 Euro coin",
+                    )
+                  )) {
+                    (true, Widget coin) => Banner(
+                        message: "DEBUG",
+                        location: BannerLocation.topEnd,
+                        child: coin,
+                      ),
+                    (false, Widget coin) => coin,
+                  }),
+            ),
+          ),
           Center(
             child: DecoratedBox(
               decoration: BoxDecoration(
@@ -93,7 +126,7 @@ class Demo extends StatelessWidget {
               ),
               child: SizedBox.fromSize(
                 size: blockSize,
-                child: DimensionsIndicator(),
+                child: const DimensionsIndicator(),
               ),
             ),
           ),
