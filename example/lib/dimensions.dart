@@ -18,8 +18,7 @@ class DimensionsIndicator extends StatelessWidget {
       ),
       child: LayoutBuilder(builder: (context, constraints) {
         final diagonal = sqrt(constraints.maxWidth * constraints.maxWidth +
-            constraints.maxHeight +
-            constraints.maxHeight);
+            constraints.maxHeight * constraints.maxHeight);
         return Stack(
           children: [
             Align(
@@ -47,9 +46,7 @@ class DimensionsIndicator extends StatelessWidget {
               child: Transform.rotate(
                 angle: atan2(-constraints.maxHeight, constraints.maxWidth),
                 child: OverflowBox(
-                  maxWidth: sqrt(constraints.maxWidth * constraints.maxWidth +
-                          constraints.maxHeight * constraints.maxHeight) -
-                      12,
+                  maxWidth: diagonal - 12,
                   child: Row(
                     children: [
                       const SizedBox(width: 22.5),

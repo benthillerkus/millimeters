@@ -78,8 +78,12 @@ class MillimetersData {
   }
 }
 
-extension ApplyScalar on Size {
-  Size apply(double Function(double scalar) fn) => Size(fn(width), fn(height));
+extension SizeUnit on Size {
+  Size unit(double Function(double scalar) fn) => Size(fn(width), fn(height));
+}
+
+extension OffsetUnit on Offset {
+  Offset unit(double Function(double scalar) fn) => Offset(fn(dx), fn(dy));
 }
 
 class _MillimetersFromView extends StatefulWidget {
