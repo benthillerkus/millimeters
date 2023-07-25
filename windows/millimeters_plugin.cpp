@@ -17,107 +17,75 @@
 
 namespace millimeters {
 
-	// static
-	void MillimetersPlugin::RegisterWithRegistrar(
-		flutter::PluginRegistrarWindows* registrar) {
-		auto channel =
-			std::make_unique<flutter::MethodChannel<flutter::EncodableValue>>(
-				registrar->messenger(), "millimeters",
-				&flutter::StandardMethodCodec::GetInstance());
+  // static
+  void MillimetersPlugin::RegisterWithRegistrar(
+    flutter::PluginRegistrarWindows* registrar) {
+    auto channel =
+      std::make_unique<flutter::MethodChannel<flutter::EncodableValue>>(
+        registrar->messenger(), "millimeters",
+        &flutter::StandardMethodCodec::GetInstance());
 
-		auto plugin = std::make_unique<MillimetersPlugin>(registrar);
+    auto plugin = std::make_unique<MillimetersPlugin>(registrar);
 
-		channel->SetMethodCallHandler(
-			[plugin_pointer = plugin.get()](const auto& call, auto result) {
-				plugin_pointer->HandleMethodCall(call, std::move(result));
-			});
+    channel->SetMethodCallHandler(
+      [plugin_pointer = plugin.get()](const auto& call, auto result) {
+        plugin_pointer->HandleMethodCall(call, std::move(result));
+      });
 
-		registrar->AddPlugin(std::move(plugin));
-	}
+    registrar->AddPlugin(std::move(plugin));
+  }
 
-	MillimetersPlugin::MillimetersPlugin(flutter::PluginRegistrarWindows* registrar) : registrar(registrar) {}
+  MillimetersPlugin::MillimetersPlugin(flutter::PluginRegistrarWindows* registrar) : registrar(registrar) {}
 
-	MillimetersPlugin::~MillimetersPlugin() {}
+  MillimetersPlugin::~MillimetersPlugin() {}
 
-	void MillimetersPlugin::HandleMethodCall(
-		const flutter::MethodCall<flutter::EncodableValue>& method_call,
-		std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
-		if (method_call.method_name().compare("getPlatformVersion") == 0) {
-			std::ostringstream version_stream;
-			version_stream << "Windows ";
-			if (IsWindows10OrGreater()) {
-				version_stream << "10+";
-			}
-			else if (IsWindows8OrGreater()) {
-				version_stream << "8";
-			}
-			else if (IsWindows7OrGreater()) {
-				version_stream << "7";
-			}
-			result->Success(flutter::EncodableValue(version_stream.str()));
-		}
-		else if (method_call.method_name().compare("getPhysicalSize") == 0) {
-			HWND current_view = registrar->GetView()->GetNativeWindow();
-			HMONITOR monitor = MonitorFromWindow(current_view, MONITOR_DEFAULTTONEAREST);
-			MONITORINFOEX monitor_info;
-			monitor_info.cbSize = sizeof(MONITORINFOEX);
-			GetMonitorInfo(monitor, &monitor_info);
+  void MillimetersPlugin::HandleMethodCall(
+    const flutter::MethodCall<flutter::EncodableValue>& method_call,
+    std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
+    if (method_call.method_name().compare("getPlatformVersion") == 0) {
+      std::ostringstream version_stream;
+      version_stream << "Windows ";
+      if (IsWindows10OrGreater()) {
+        version_stream << "10+";
+      }
+      else if (IsWindows8OrGreater()) {
+        version_stream << "8";
+      }
+      else if (IsWindows7OrGreater()) {
+        version_stream << "7";
+      }
+      result->Success(flutter::EncodableValue(version_stream.str()));
+    }
+    else if (method_call.method_name().compare("getPhysicalSize") == 0) {
+      HWND current_view = registrar->GetView()->GetNativeWindow();
+      HMONITOR monitor = MonitorFromWindow(current_view, MONITOR_DEFAULTTONEAREST);
+      DISPLAY_DEVICE display_device;
+      display_device.cb = sizeof(display_device);
+      DisplayDeviceFromHMonitor(monitor, display_device);
 
-			short WidthMm = 0;
-			short HeightMm = 0;
-			DISPLAY_DEVICE display_device;
-			display_device.cb = sizeof(display_device);
-			DWORD dev = 0; // device index 	int id = 1; // monitor number, as used by Display Properties > Settings
+      short WidthMm = 0;
+      short HeightMm = 0;
+      GetSizeForDevID(display_device.DeviceID, WidthMm, HeightMm);
 
-			CString DeviceID;
-			bool bFoundDevice = false;
-			while (EnumDisplayDevices(0, dev, &display_device, 0) && !bFoundDevice) {
-				DISPLAY_DEVICE ddMon;
-				ZeroMemory(&ddMon, sizeof(ddMon));
-				ddMon.cb = sizeof(ddMon);
-				DWORD devMon = 0;
-
-				while (EnumDisplayDevices(display_device.DeviceName, devMon, &ddMon, 0) && !bFoundDevice)
-				{
-					if (ddMon.StateFlags & DISPLAY_DEVICE_ACTIVE &&
-						!(ddMon.StateFlags & DISPLAY_DEVICE_MIRRORING_DRIVER))
-					{
-						DeviceID.Format(L"%s", ddMon.DeviceID);
-						DeviceID = DeviceID.Mid(8, DeviceID.Find(L"\\", 9) - 8);
-
-						bFoundDevice = GetSizeForDevID(DeviceID, WidthMm, HeightMm);
-					}
-					devMon++;
-
-					ZeroMemory(&ddMon, sizeof(ddMon));
-					ddMon.cb = sizeof(ddMon);
-				}
-
-				ZeroMemory(&display_device, sizeof(display_device));
-				display_device.cb = sizeof(display_device);
-				dev++;
-			}
-
-
-			result->Success(flutter::EncodableValue(flutter::EncodableMap{
-				{ flutter::EncodableValue("Width"), flutter::EncodableValue(WidthMm * 10) },
-				{ flutter::EncodableValue("Height"), flutter::EncodableValue(HeightMm * 10) },
-			}));
-		}
-		else if (method_call.method_name().compare("getResolution") == 0) {
-			HWND current_view = registrar->GetView()->GetNativeWindow();
-			HMONITOR monitor = MonitorFromWindow(current_view, MONITOR_DEFAULTTONEAREST);
-			MONITORINFO monitor_info;
-			monitor_info.cbSize = sizeof(MONITORINFO);
-			GetMonitorInfo(monitor, &monitor_info);
-			result->Success(flutter::EncodableValue(flutter::EncodableMap{
-				{ flutter::EncodableValue("Width"), flutter::EncodableValue(monitor_info.rcMonitor.right - monitor_info.rcMonitor.left) },
-				{ flutter::EncodableValue("Height"), flutter::EncodableValue(monitor_info.rcMonitor.bottom - monitor_info.rcMonitor.top) },
-			}));
-		}
-		else {
-			result->NotImplemented();
-		}
-	}
+      result->Success(flutter::EncodableValue(flutter::EncodableMap{
+        { flutter::EncodableValue("Width"), flutter::EncodableValue(WidthMm) },
+        { flutter::EncodableValue("Height"), flutter::EncodableValue(HeightMm) },
+      }));
+    }
+    else if (method_call.method_name().compare("getResolution") == 0) {
+      HWND current_view = registrar->GetView()->GetNativeWindow();
+      HMONITOR monitor = MonitorFromWindow(current_view, MONITOR_DEFAULTTONEAREST);
+      MONITORINFO monitor_info;
+      monitor_info.cbSize = sizeof(MONITORINFO);
+      GetMonitorInfo(monitor, &monitor_info);
+      result->Success(flutter::EncodableValue(flutter::EncodableMap{
+        { flutter::EncodableValue("Width"), flutter::EncodableValue(monitor_info.rcMonitor.right - monitor_info.rcMonitor.left) },
+        { flutter::EncodableValue("Height"), flutter::EncodableValue(monitor_info.rcMonitor.bottom - monitor_info.rcMonitor.top) },
+      }));
+    }
+    else {
+      result->NotImplemented();
+    }
+  }
 
 }  // namespace millimeters

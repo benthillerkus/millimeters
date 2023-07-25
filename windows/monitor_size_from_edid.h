@@ -1,102 +1,107 @@
 #pragma once
 
+// By Ofek Shilon & paveo
+// https://ofekshilon.com/2014/06/19/reading-specific-monitor-dimensions/
+
 #include <atlstr.h>
 #include <SetupApi.h>
+#include <cfgmgr32.h>  // for MAX_DEVICE_ID_LEN
 #pragma comment(lib, "setupapi.lib")
 
 #define NAME_SIZE 128
 
-const GUID GUID_CLASS_MONITOR = { 0x4d36e96e, 0xe325, 0x11ce, 0xbf, 0xc1, 0x08, 0x00, 0x2b, 0xe1, 0x03, 0x18 };
+const GUID GUID_DEVINTERFACE_MONITOR = { 0xe6f07b5f, 0xee97, 0x4a90, 0xb0, 0x76, 0x33, 0xf5, 0x7b, 0xf4, 0xea, 0xa7 };
 
-// Assumes hDevRegKey is valid
-bool GetMonitorSizeFromEDID(const HKEY hDevRegKey, short &WidthMm, short &HeightMm)
+// Assumes hEDIDRegKey is valid
+bool GetMonitorSizeFromEDID(const HKEY hEDIDRegKey, short& WidthMm, short& HeightMm)
 {
-  DWORD dwType, AcutalValueNameLength = NAME_SIZE;
-  TCHAR valueName[NAME_SIZE];
-
   BYTE EDIDdata[1024];
   DWORD edidsize = sizeof(EDIDdata);
 
-  for (LONG i = 0, retValue = ERROR_SUCCESS; retValue != ERROR_NO_MORE_ITEMS; ++i)
-  {
-    retValue = RegEnumValue(hDevRegKey, i, &valueName[0],
-                            &AcutalValueNameLength, NULL, &dwType,
-                            EDIDdata,   // buffer
-                            &edidsize); // buffer size
+  if (ERROR_SUCCESS != RegQueryValueEx(hEDIDRegKey, _T("EDID"), NULL, NULL, EDIDdata, &edidsize))
+    return false;
+  WidthMm = ((EDIDdata[68] & 0xF0) << 4) + EDIDdata[66];
+  HeightMm = ((EDIDdata[68] & 0x0F) << 8) + EDIDdata[67];
 
-    if (retValue != ERROR_SUCCESS || 0 != _tcscmp(valueName, _T("EDID")))
-      continue;
-
-    WidthMm = ((EDIDdata[68] & 0xF0) << 4) + EDIDdata[66];
-    HeightMm = ((EDIDdata[68] & 0x0F) << 8) + EDIDdata[67];
-    return true; // valid EDID found
-  }
-  return false; // EDID not found
+  return true; // valid EDID found
 }
 
-bool GetSizeForDevID(const CString &TargetDevID, short &WidthMm, short &HeightMm)
+bool GetSizeForDevID(const CString& TargetDevID, short& WidthMm, short& HeightMm)
 {
-  HDEVINFO devInfo = SetupDiGetClassDevs(&GUID_CLASS_MONITOR, NULL, NULL, DIGCF_PRESENT);
-  // reserved
+  HDEVINFO devInfo = SetupDiGetClassDevs(
+    &GUID_DEVINTERFACE_MONITOR, //class GUID
+    NULL, //enumerator
+    NULL, //HWND
+    DIGCF_DEVICEINTERFACE
+  );// reserved
+
   if (NULL == devInfo)
     return false;
+
   bool bRes = false;
-  for (ULONG i = 0; ERROR_NO_MORE_ITEMS != GetLastError(); ++i)
+
+  for (ULONG i = 0; ERROR_NO_MORE_ITEMS != GetLastError() && !bRes; i++)
   {
-    SP_DEVINFO_DATA devInfoData;
-    memset(&devInfoData, 0, sizeof(devInfoData));
-    devInfoData.cbSize = sizeof(devInfoData);
-    if (SetupDiEnumDeviceInfo(devInfo, i, &devInfoData))
+    SP_DEVICE_INTERFACE_DATA device_interface_data;
+    device_interface_data.cbSize = sizeof(SP_DEVICE_INTERFACE_DATA);
+    SetupDiEnumDeviceInterfaces(devInfo, NULL, &GUID_DEVINTERFACE_MONITOR, i, &device_interface_data);
+
+    DWORD required_size = 0;
+    SetupDiGetDeviceInterfaceDetail(devInfo, &device_interface_data, NULL, 0, &required_size, NULL);
+    
+    SP_DEVICE_INTERFACE_DETAIL_DATA* device_interface_detail_data;
+    device_interface_detail_data = (PSP_DEVICE_INTERFACE_DETAIL_DATA)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, required_size);
+    device_interface_detail_data->cbSize = sizeof(*device_interface_detail_data);
+    SetupDiGetDeviceInterfaceDetail(devInfo, &device_interface_data, device_interface_detail_data, required_size, NULL, NULL);
+
+    SP_DEVINFO_DATA devinfo_data;
+    devinfo_data.cbSize = sizeof(SP_DEVINFO_DATA);
+
+    if (0 == _wcsicmp(device_interface_detail_data->DevicePath, TargetDevID.GetString()))
     {
-      HKEY hDevRegKey = SetupDiOpenDevRegKey(devInfo, &devInfoData, DICS_FLAG_GLOBAL, 0, DIREG_DEV, KEY_READ);
-      if (!hDevRegKey || (hDevRegKey == INVALID_HANDLE_VALUE))
+      SetupDiEnumDeviceInfo(devInfo, i, &devinfo_data);
+
+      HKEY hEDIDRegKey = SetupDiOpenDevRegKey(devInfo, &devinfo_data,
+        DICS_FLAG_GLOBAL, 0, DIREG_DEV, KEY_READ);
+
+      if (!hEDIDRegKey || (hEDIDRegKey == INVALID_HANDLE_VALUE))
         continue;
-      bRes = GetMonitorSizeFromEDID(hDevRegKey, WidthMm, HeightMm);
-      RegCloseKey(hDevRegKey);
+
+      bRes = GetMonitorSizeFromEDID(hEDIDRegKey, WidthMm, HeightMm);
+
+      RegCloseKey(hEDIDRegKey);
     }
+
+    HeapFree(GetProcessHeap(), 0, device_interface_detail_data);
   }
   SetupDiDestroyDeviceInfoList(devInfo);
   return bRes;
 }
 
-int _tmain(int argc, _TCHAR *argv[])
+BOOL DisplayDeviceFromHMonitor(HMONITOR hMonitor, DISPLAY_DEVICE& ddMonOut)
 {
-  short WidthMm, HeightMm;
+  MONITORINFOEX mi;
+  mi.cbSize = sizeof(MONITORINFOEX);
+  GetMonitorInfo(hMonitor, &mi);
+
   DISPLAY_DEVICE dd;
   dd.cb = sizeof(dd);
-  DWORD dev = 0; // device index 	int id = 1; // monitor number, as used by Display Properties > Settings
+  DWORD devIdx = 0; // device index
 
   CString DeviceID;
-  bool bFoundDevice = false;
-  while (EnumDisplayDevices(0, dev, &dd, 0) && !bFoundDevice)
+  while (EnumDisplayDevices(0, devIdx, &dd, 0))
   {
-    DISPLAY_DEVICE ddMon;
-    ZeroMemory(&ddMon, sizeof(ddMon));
-    ddMon.cb = sizeof(ddMon);
-    DWORD devMon = 0;
+    devIdx++;
+    if (0 != _tcscmp(dd.DeviceName, mi.szDevice))
+      continue;
 
-    while (EnumDisplayDevices(dd.DeviceName, devMon, &ddMon, 0) && !bFoundDevice)
-    {
-      if (ddMon.StateFlags & DISPLAY_DEVICE_ACTIVE &&
-          !(ddMon.StateFlags & DISPLAY_DEVICE_MIRRORING_DRIVER))
-      {
-        DeviceID.Format(L"%s", ddMon.DeviceID);
-        DeviceID = DeviceID.Mid(8, DeviceID.Find(L"\\", 9) - 8);
-
-        bFoundDevice = GetSizeForDevID(DeviceID, WidthMm, HeightMm);
-      }
-      devMon++;
-
-      ZeroMemory(&ddMon, sizeof(ddMon));
-      ddMon.cb = sizeof(ddMon);
-    }
+    EnumDisplayDevices(dd.DeviceName, 0, &ddMonOut, EDD_GET_DEVICE_INTERFACE_NAME);
 
     ZeroMemory(&dd, sizeof(dd));
     dd.cb = sizeof(dd);
-    dev++;
+
+    return TRUE;
   }
 
-  return 0;
+  return FALSE;
 }
-
-#undef NAME_SIZE
