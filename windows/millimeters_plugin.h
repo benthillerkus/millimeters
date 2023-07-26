@@ -12,7 +12,7 @@ class MillimetersPlugin : public flutter::Plugin {
   public:
   static void RegisterWithRegistrar(flutter::PluginRegistrarWindows *registrar);
 
-  MillimetersPlugin(flutter::PluginRegistrarWindows *registrar);
+  MillimetersPlugin(flutter::PluginRegistrarWindows* registrar, std::shared_ptr<flutter::MethodChannel<flutter::EncodableValue>> channel);
 
   virtual ~MillimetersPlugin();
 
@@ -25,8 +25,14 @@ class MillimetersPlugin : public flutter::Plugin {
       const flutter::MethodCall<flutter::EncodableValue> &method_call,
       std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result);
   
+  flutter::EncodableValue GetSize();
+
+  flutter::EncodableValue GetResolution();
+
   private:
   flutter::PluginRegistrarWindows *registrar;
+  std::shared_ptr<flutter::MethodChannel<flutter::EncodableValue>> channel;
+  int window_proc_id;
 };
 
 }  // namespace millimeters
