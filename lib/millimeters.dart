@@ -1,29 +1,35 @@
-// You have generated a new plugin project without specifying the `--platforms`
-// flag. A plugin project with no platform support was generated. To add a
-// platform, run `flutter create -t plugin --platforms <platforms> .` under the
-// same directory. You can also find a detailed instruction on how to add
-// platforms in the `pubspec.yaml` at
-// https://flutter.dev/docs/development/packages-and-plugins/developing-packages#plugin-platforms.
-
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 
 import 'millimeters_platform_interface.dart';
 
+/// [InheritedWidget] that provides the [MillimetersData] to its descendants.
+///
+/// Provide your App with data from the plugin by wrapping it with `Millimeters.fromView(child: ...)`.
+/// Use the [Millimeters.of] static methods to access the values.
+///
+/// If you're simulating a device with different measurements,
+/// you can wrap that subtree with a [Millimeters] Widget built with the default constructor.
 class Millimeters extends InheritedWidget {
+  /// Creates a [Millimeters] Widget with the given data.
+  /// 
+  /// If you want to use the data provided by the plugin, use [Millimeters.fromView] instead.
   const Millimeters({super.key, required this.data, required super.child});
 
   final MillimetersData data;
 
+  /// Creates a [Millimeters] Widget with data provided by the plugin.
   static Widget fromView({Key? key, required Widget child}) {
     return _MillimetersFromView(key: key, child: child);
   }
 
+  /// Returns the [MillimetersData] from the closest [Millimeters] ancestor.
   static MillimetersData? maybeOf(BuildContext context) {
     return context.dependOnInheritedWidgetOfExactType<Millimeters>()?.data;
   }
 
+  /// Returns the [MillimetersData] from the closest [Millimeters] ancestor.
   static MillimetersData of(BuildContext context) {
     final data = maybeOf(context);
     assert(data != null, 'No Millimeters Widget found in context');
@@ -36,6 +42,7 @@ class Millimeters extends InheritedWidget {
   }
 }
 
+/// Data class that holds information about a monitor.
 @immutable
 class MillimetersData {
   const MillimetersData({
@@ -43,9 +50,12 @@ class MillimetersData {
     required this.resolution,
   });
 
+  /// The physical size of the monitor in millimeters.
   final Size physical;
+  /// The effective resolution (after scaling) of the monitor in pixels.
   final Size resolution;
 
+  /// Converts a millimeter value into logical pixels.
   double mm(double px) {
     if (resolution.isEmpty || physical.isEmpty) return px * 3.78;
     final ratio = resolution.width / physical.width;
@@ -64,6 +74,7 @@ class MillimetersData {
   @override
   int get hashCode => physical.hashCode ^ resolution.hashCode;
 
+  /// Creates a copy of this [MillimetersData] with the given fields replaced
   MillimetersData copyWith({
     Size? physical,
     Size? resolution,
@@ -81,10 +92,12 @@ class MillimetersData {
 }
 
 extension SizeUnit on Size {
+  /// Converts this [Size] of the unit defined by [fn] into logical pixels.
   Size unit(double Function(double scalar) fn) => Size(fn(width), fn(height));
 }
 
 extension OffsetUnit on Offset {
+  /// Converts this [Offset] of the unit defined by [fn] into logical pixels.
   Offset unit(double Function(double scalar) fn) => Offset(fn(dx), fn(dy));
 }
 

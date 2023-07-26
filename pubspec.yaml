@@ -6,7 +6,7 @@ issue_tracker: https://github.com/benthillerkus/millimeters/issues
 topics:
   - layout
   - device
-  - cross-platform
+  - physical
 
 environment:
   sdk: '>=3.0.5 <4.0.0'
