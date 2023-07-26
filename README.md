@@ -21,7 +21,7 @@ There are probably seldom cases where you actually want physically consistent si
 | Multi Monitor         | ✔️ ||||||
 | Handle Screen Scaling | ✔️ || ✔️ ||||
 
-[^1]: Will be just a static fallback value, as most browser implement millimeters as 96px/25.4
+[^1]: Will be just a static fallback value, as most browsers implement define 1mm as 96px/25.4
 
 ## Usage
 
