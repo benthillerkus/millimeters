@@ -2,9 +2,7 @@
 
 // This must be included before many other Windows headers.
 #include <windows.h>
-
-// For getPlatformVersion; remove unless needed for your plugin implementation.
-#include <VersionHelpers.h>
+#include <ShellScalingApi.h>
 
 #include <flutter/method_channel.h>
 #include <flutter/plugin_registrar_windows.h>
@@ -40,6 +38,7 @@ namespace millimeters {
       switch (message) {
         case WM_MOVE:
         case WM_SIZE:
+        case CCM_DPISCALE:
           auto size_map = std::make_unique<flutter::EncodableValue>(GetSize());
           auto resolution_map = std::make_unique<flutter::EncodableValue>(GetResolution());
           this->channel->InvokeMethod("updateSize", std::move(size_map));
@@ -57,21 +56,7 @@ namespace millimeters {
   void MillimetersPlugin::HandleMethodCall(
     const flutter::MethodCall<flutter::EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
-    if (method_call.method_name().compare("getPlatformVersion") == 0) {
-      std::ostringstream version_stream;
-      version_stream << "Windows ";
-      if (IsWindows10OrGreater()) {
-        version_stream << "10+";
-      }
-      else if (IsWindows8OrGreater()) {
-        version_stream << "8";
-      }
-      else if (IsWindows7OrGreater()) {
-        version_stream << "7";
-      }
-      result->Success(flutter::EncodableValue(version_stream.str()));
-    }
-    else if (method_call.method_name().compare("getSize") == 0) {
+    if (method_call.method_name().compare("getSize") == 0) {
       auto size_map = GetSize();
       result->Success(size_map);
     }
@@ -106,9 +91,11 @@ namespace millimeters {
     MONITORINFO monitor_info;
     monitor_info.cbSize = sizeof(MONITORINFO);
     GetMonitorInfo(monitor, &monitor_info);
+    DEVICE_SCALE_FACTOR scale_factor;
+    GetScaleFactorForMonitor(monitor, &scale_factor);
     return flutter::EncodableValue(flutter::EncodableMap{
-        { flutter::EncodableValue("Width"), flutter::EncodableValue(monitor_info.rcMonitor.right - monitor_info.rcMonitor.left) },
-        { flutter::EncodableValue("Height"), flutter::EncodableValue(monitor_info.rcMonitor.bottom - monitor_info.rcMonitor.top) },
+        { flutter::EncodableValue("Width"), flutter::EncodableValue((monitor_info.rcMonitor.right - monitor_info.rcMonitor.left) * (100.0 / scale_factor)) },
+        { flutter::EncodableValue("Height"), flutter::EncodableValue((monitor_info.rcMonitor.bottom - monitor_info.rcMonitor.top) * (100.0 / scale_factor)) },
     });
   }
 }  // namespace millimeters

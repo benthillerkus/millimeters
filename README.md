@@ -17,7 +17,7 @@ There are probably seldom cases where you actually want physically consistent si
 | Physical Size         | ✔️ || ✔️ | ✔️[^1] |||
 | Multi Window          |||||||
 | Multi Monitor         | ✔️ ||||||
-| Ignore Screen Scaling ||| ✔️ ||||
+| Handle Screen Scaling | ✔️ || ✔️ ||||
 
 [^1]: Will be just a static fallback value, as most browser implement millimeters as 96px/25.4
 
