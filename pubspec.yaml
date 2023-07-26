@@ -1,8 +1,12 @@
 name: millimeters
-description: Determine the screen size in millimeters and size your Widgets to be equally large on every screen.
-version: 0.0.1
+description: Determines the screen size in millimeters so that you can match Widgets to the real world.
+version: 0.1.0
 repository: https://github.com/benthillerkus/millimeters
 issue_tracker: https://github.com/benthillerkus/millimeters/issues
+topics:
+  - layout
+  - device
+  - cross-platform
 
 environment:
   sdk: '>=3.0.5 <4.0.0'
