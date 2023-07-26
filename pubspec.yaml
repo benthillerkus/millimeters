@@ -1,6 +1,6 @@
 name: millimeters
 description: Determines the screen size in millimeters so that you can match Widgets to the real world.
-version: 0.1.0
+version: 0.1.1
 repository: https://github.com/benthillerkus/millimeters
 issue_tracker: https://github.com/benthillerkus/millimeters/issues
 topics:
