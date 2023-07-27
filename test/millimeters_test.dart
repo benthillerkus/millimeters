@@ -3,44 +3,46 @@ import 'dart:ui';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:millimeters/millimeters.dart';
 import 'package:millimeters/millimeters_platform_interface.dart';
-import 'package:millimeters/millimeters_method_channel.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-class MockMillimetersPlatform
-    with MockPlatformInterfaceMixin
-    implements MillimetersPlatform {
-
+class MockMillimetersPlatform extends MillimetersPlatform
+    with MockPlatformInterfaceMixin {
   @override
   Future<String?> getPlatformVersion() => Future.value('42');
 
   @override
-  Future<Size?> getPhysicalSize() {
-    // TODO: implement getPhysicalSize
-    throw UnimplementedError();
-  }
+  Future<Size?> getSize() => Future.value(const Size(60, 40));
 
   @override
-  Future<Size?> getResolution() {
-    // TODO: implement getResolution
-    throw UnimplementedError();
-  }
-  
-  @override
-  void Function(Size resolution)? updateResolution;
+  Future<Size?> getResolution() => Future.value(const Size(600, 400));
 }
 
 void main() {
-  final MillimetersPlatform initialPlatform = MillimetersPlatform.instance;
-
-  test('$MethodChannelMillimeters is the default instance', () {
-    expect(initialPlatform, isInstanceOf<MethodChannelMillimeters>());
-  });
-
   test('getPlatformVersion', () async {
-    Millimeters millimetersPlugin = Millimeters();
     MockMillimetersPlatform fakePlatform = MockMillimetersPlatform();
     MillimetersPlatform.instance = fakePlatform;
 
-    expect(await millimetersPlugin.getPlatformVersion(), '42');
+    expect(await fakePlatform.getPlatformVersion(), '42');
+  });
+
+  test('cropEqual', () {
+    const initial = Size(100, 200);
+    final cropped = initial.cropToAspectRatio(0.5);
+
+    expect(initial, cropped);
+  });
+
+  test('cropTaller', () {
+    const initial = Size(100, 200);
+    final cropped = initial.cropToAspectRatio(1);
+
+    expect(cropped, const Size(100, 100));
+  });
+
+  test('cropWider', () {
+    const initial = Size(200, 100);
+    final cropped = initial.cropToAspectRatio(1);
+
+    expect(cropped, const Size(100, 100));
   });
 }

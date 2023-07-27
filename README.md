@@ -16,12 +16,13 @@ There are probably seldom cases where you actually want physically consistent si
 |                       | Windows | Linux | macOS | Web | Android | iOS |
 |-----------------------|:-------:|:-----:|:-----:|:---:|:-------:|:---:|
 | Resolution            | ✔️ || ✔️ | ✔️ |||
-| Physical Size         | ✔️ || ✔️ | ✔️[^1] |||
+| Physical Size         | ✔️ || ✔️[^2] | ✔️[^1] |||
 | Multi Window          |||||||
 | Multi Monitor         | ✔️ ||||||
 | Handle Screen Scaling | ✔️ || ✔️ ||||
 
 [^1]: Will be just a static fallback value, as most browsers implement define 1mm as 96px/25.4
+[^2]: macOS delivers incorrect results on super small resolutions (eg. 800*600). On standard resolutions results are correct.
 
 ## Usage
 

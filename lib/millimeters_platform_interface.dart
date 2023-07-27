@@ -17,12 +17,13 @@ abstract class MillimetersPlatform extends PlatformInterface {
 
   static final Object _token = Object();
 
-  static MillimetersPlatform _instance = MethodChannelMillimeters();
+  @protected
+  static MillimetersPlatform? _instance;
 
   /// The default instance of [MillimetersPlatform] to use.
   ///
   /// Defaults to [MethodChannelMillimeters].
-  static MillimetersPlatform get instance => _instance;
+  static MillimetersPlatform get instance => _instance ??= MethodChannelMillimeters();
 
   /// Platform-specific implementations should set this with their own
   /// platform-specific class that extends [MillimetersPlatform] when

@@ -13,7 +13,7 @@ import 'millimeters_platform_interface.dart';
 /// you can wrap that subtree with a [Millimeters] Widget built with the default constructor.
 class Millimeters extends InheritedWidget {
   /// Creates a [Millimeters] Widget with the given data.
-  /// 
+  ///
   /// If you want to use the data provided by the plugin, use [Millimeters.fromView] instead.
   const Millimeters({super.key, required this.data, required super.child});
 
@@ -45,23 +45,28 @@ class Millimeters extends InheritedWidget {
 /// Data class that holds information about a monitor.
 @immutable
 class MillimetersData {
-  const MillimetersData({
-    required this.physical,
+  MillimetersData({
+    required Size physical,
     required this.resolution,
-  });
+  })  : _monitor = physical,
+        physical = physical.cropToAspectRatio(resolution.aspectRatio),
+        mmPerPixel = (resolution.isEmpty || physical.isEmpty)
+            ? 3.78
+            : (resolution.width / physical.width);
+
+  /// The physical size of the display area in millimeters.
+  final Size physical;
 
   /// The physical size of the monitor in millimeters.
-  final Size physical;
+  final Size _monitor;
+
   /// The effective resolution (after scaling) of the monitor in pixels.
   final Size resolution;
 
+  final double mmPerPixel;
+
   /// Converts a millimeter value into logical pixels.
-  double mm(double px) {
-    if (resolution.isEmpty || physical.isEmpty) return px * 3.78;
-    final ratio = resolution.width / physical.width;
-    assert((ratio - (resolution.height / physical.height)).abs() < 1);
-    return px * ratio;
-  }
+  double mm(double mm) => mm * mmPerPixel;
 
   @override
   bool operator ==(Object other) =>
@@ -80,20 +85,35 @@ class MillimetersData {
     Size? resolution,
   }) {
     return MillimetersData(
-      physical: physical ?? this.physical,
+      physical: physical ?? _monitor,
       resolution: resolution ?? this.resolution,
     );
   }
 
   @override
   String toString() {
-    return '${physical.width.toStringAsFixed(1)}×${physical.height.toStringAsFixed(1)}mm@${resolution.width.round()}×${resolution.height.round()}px';
+    return '${physical.width.toStringAsFixed(1)}×${physical.height.toStringAsFixed(1)}mm@${resolution.width.round()}×${resolution.height.round()}px (pre crop size: ${physical.width.toStringAsFixed(1)}×${physical.height.toStringAsFixed(1)}mm)';
   }
 }
 
 extension SizeUnit on Size {
   /// Converts this [Size] of the unit defined by [fn] into logical pixels.
   Size unit(double Function(double scalar) fn) => Size(fn(width), fn(height));
+
+  Size cropToAspectRatio(double aspectRatio) {
+    // ar = w / h
+    // w = ar * h
+    // h = w / ar
+    if ((this.aspectRatio - aspectRatio).abs() < 0.01) {
+      return this;
+    } else if (this.aspectRatio > aspectRatio) {
+      // this is wider than target, ie we need to remove width
+      return Size(aspectRatio * height, height);
+    } else {
+      // remove height
+      return Size(width, width / aspectRatio);
+    }
+  }
 }
 
 extension OffsetUnit on Offset {
@@ -111,7 +131,7 @@ class _MillimetersFromView extends StatefulWidget {
 }
 
 class _MillimetersFromViewState extends State<_MillimetersFromView> {
-  MillimetersData _data = const MillimetersData(
+  var _data = MillimetersData(
     physical: Size.zero,
     resolution: Size.zero,
   );
