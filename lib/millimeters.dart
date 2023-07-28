@@ -52,7 +52,8 @@ class MillimetersData {
         physical = physical.cropToAspectRatio(resolution.aspectRatio),
         mmPerPixel = (resolution.isEmpty || physical.isEmpty)
             ? 3.78
-            : (resolution.width / physical.width);
+            : (resolution.width /
+                physical.cropToAspectRatio(resolution.aspectRatio).width);
 
   /// The physical size of the display area in millimeters.
   final Size physical;
@@ -73,11 +74,11 @@ class MillimetersData {
       identical(this, other) ||
       other is MillimetersData &&
           runtimeType == other.runtimeType &&
-          physical == other.physical &&
+          _monitor == other._monitor &&
           resolution == other.resolution;
 
   @override
-  int get hashCode => physical.hashCode ^ resolution.hashCode;
+  int get hashCode => _monitor.hashCode ^ resolution.hashCode;
 
   /// Creates a copy of this [MillimetersData] with the given fields replaced
   MillimetersData copyWith({
@@ -168,7 +169,7 @@ class _MillimetersFromViewState extends State<_MillimetersFromView> {
 
     _physical?.cancel();
     _physical = MillimetersPlatform.instance.size.listen((physical) {
-      if (physical != _data.physical) {
+      if (physical != _data._monitor) {
         setState(() {
           _data = _data.copyWith(physical: physical);
         });
