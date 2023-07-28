@@ -7,6 +7,9 @@ topics:
   - layout
   - device
   - physical
+screenshots:
+  - description: The example project has a transparent background with a 1mm raster grid that can be used as a digital ruler.
+    path: screenshot.webp
 
 environment:
   sdk: '>=3.0.5 <4.0.0'
