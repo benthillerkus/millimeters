@@ -4,6 +4,8 @@
 
 A Flutter plugin for determining the physical device screen size in millimeters.
 
+https://github.com/benthillerkus/millimeters/assets/29630575/51bc68cf-f0bb-4032-8ec9-ab8d4be9a98b
+
 ## Functionality
 
 This package depends on native APIs to provide correct values. Typically on Apple platforms (iOS, macOS) these will be correct (aslong as you aren't mirroring your screen), but on other platforms the results can be totally off. This plugins tries its best in delivering correct results, but on some platforms (e.g. Web, Android) results may never be correct.
