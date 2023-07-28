@@ -1,3 +1,7 @@
+## 0.1.1
+
+Fix #5 - desktops with resolutions different than the monitor size work properly now.
+
 ## 0.1.0
 
 ### Initial release:
