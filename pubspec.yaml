@@ -48,6 +48,9 @@ flutter:
     # platforms with the `--platform` argument. Add platforms following the instruction here:
     # https://flutter.dev/docs/development/packages-and-plugins/developing-packages#plugin-platforms
     # -------------------
+      android:
+        package: party.bent.millimeters
+        pluginClass: MillimetersPlugin
       macos:
         pluginClass: MillimetersPlugin
       windows:
