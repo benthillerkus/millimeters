@@ -21,7 +21,7 @@ class Millimeters extends InheritedWidget {
 
   /// Creates a [Millimeters] Widget with data provided by the plugin.
   static Widget fromView({Key? key, required Widget child}) {
-    return _MillimetersFromView(key: key, child: child);
+    return MillimetersFromView(key: key, child: child);
   }
 
   /// Returns the [MillimetersData] from the closest [Millimeters] ancestor.
@@ -68,6 +68,8 @@ class MillimetersData {
 
   /// Converts a millimeter value into logical pixels.
   double mm(double mm) => mm * mmPerPixel;
+
+  bool get isEmpty => physical.isEmpty || resolution.isEmpty;
 
   @override
   bool operator ==(Object other) =>
@@ -122,16 +124,18 @@ extension OffsetUnit on Offset {
   Offset unit(double Function(double scalar) fn) => Offset(fn(dx), fn(dy));
 }
 
-class _MillimetersFromView extends StatefulWidget {
-  const _MillimetersFromView({super.key, required this.child});
+@protected
+class MillimetersFromView extends StatefulWidget {
+  const MillimetersFromView({super.key, required this.child});
 
   final Widget child;
 
   @override
-  State<_MillimetersFromView> createState() => _MillimetersFromViewState();
+  State<MillimetersFromView> createState() => MillimetersFromViewState();
 }
 
-class _MillimetersFromViewState extends State<_MillimetersFromView> {
+@protected
+class MillimetersFromViewState extends State<MillimetersFromView> {
   var _data = MillimetersData(
     physical: Size.zero,
     resolution: Size.zero,
@@ -140,22 +144,33 @@ class _MillimetersFromViewState extends State<_MillimetersFromView> {
   StreamSubscription<Size>? _physical;
   StreamSubscription<Size>? _resolution;
 
+  bool get isInitialized => !_data.isEmpty;
+
+  final Completer<MillimetersData> _initialized = Completer<MillimetersData>();
+
+  Future<MillimetersData> get initialize => _initialized.future;
+
   @override
   void initState() {
     super.initState();
 
-    MillimetersPlatform.instance.getSize().then((Size? value) {
+    final sizeSet = MillimetersPlatform.instance.getSize().then((Size? value) {
       setState(() {
         _data = _data.copyWith(physical: value ?? Size.zero);
       });
       return null;
     });
 
-    MillimetersPlatform.instance.getResolution().then((Size? value) {
+    final resolutionSet =
+        MillimetersPlatform.instance.getResolution().then((Size? value) {
       setState(() {
         _data = _data.copyWith(resolution: value ?? Size.zero);
       });
       return null;
+    });
+
+    (sizeSet, resolutionSet).wait.then((_) {
+      _initialized.complete(_data);
     });
 
     _resolution?.cancel();
@@ -192,7 +207,7 @@ class _MillimetersFromViewState extends State<_MillimetersFromView> {
   }
 
   @override
-  void didUpdateWidget(_MillimetersFromView oldWidget) {
+  void didUpdateWidget(MillimetersFromView oldWidget) {
     _physical?.resume();
     _resolution?.resume();
     super.didUpdateWidget(oldWidget);
