@@ -91,12 +91,8 @@ void main() {
     MillimetersPlatform.instance = fakePlatform;
 
     MillimetersData? data;
-
-    final key = GlobalKey<MillimetersFromViewState>();
-
     await tester.pumpWidget(
       MillimetersFromView(
-        key: key,
         child: Builder(
           builder: (context) {
             data = Millimeters.of(context);
@@ -106,8 +102,7 @@ void main() {
       ),
     );
     expect(data, isNotNull);
-
-    data = await key.currentState!.initialize;
+    await tester.pumpAndSettle();
     expect(data!.physical, size);
     expect(data!.resolution, resolution);
   });
