@@ -26,7 +26,13 @@ class Millimeters extends InheritedWidget {
 
   /// Returns the [MillimetersData] from the closest [Millimeters] ancestor.
   static MillimetersData? maybeOf(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<Millimeters>()?.data;
+    final pixelRatio = MediaQuery.maybeDevicePixelRatioOf(context);
+    return context
+        .dependOnInheritedWidgetOfExactType<Millimeters>()
+        ?.data
+        .copyWith(
+          devicePixelRatio: pixelRatio,
+        );
   }
 
   /// Returns the [MillimetersData] from the closest [Millimeters] ancestor.
@@ -48,6 +54,7 @@ class MillimetersData {
   MillimetersData({
     required Size physical,
     required this.resolution,
+    this.devicePixelRatio = 1.0,
   })  : _monitor = physical,
         physical = physical.cropToAspectRatio(resolution.aspectRatio),
         mmPerPixel = (resolution.isEmpty || physical.isEmpty)
@@ -66,8 +73,10 @@ class MillimetersData {
 
   final double mmPerPixel;
 
+  final double devicePixelRatio;
+
   /// Converts a millimeter value into logical pixels.
-  double mm(double mm) => mm * mmPerPixel;
+  double mm(double mm) => mm * mmPerPixel / devicePixelRatio;
 
   bool get isEmpty => physical.isEmpty || resolution.isEmpty;
 
@@ -86,16 +95,18 @@ class MillimetersData {
   MillimetersData copyWith({
     Size? physical,
     Size? resolution,
+    double? devicePixelRatio,
   }) {
     return MillimetersData(
       physical: physical ?? _monitor,
       resolution: resolution ?? this.resolution,
+      devicePixelRatio: devicePixelRatio ?? this.devicePixelRatio,
     );
   }
 
   @override
   String toString() {
-    return '${physical.width.toStringAsFixed(1)}×${physical.height.toStringAsFixed(1)}mm@${resolution.width.round()}×${resolution.height.round()}px (pre crop size: ${physical.width.toStringAsFixed(1)}×${physical.height.toStringAsFixed(1)}mm)';
+    return '${physical.width.toStringAsFixed(1)}×${physical.height.toStringAsFixed(1)}mm@${resolution.width.round()}×${resolution.height.round()}px (pre crop size: ${physical.width.toStringAsFixed(1)}×${physical.height.toStringAsFixed(1)}mm) (pixel scale: $devicePixelRatio)';
   }
 }
 
