@@ -71,6 +71,7 @@ class MillimetersData {
   /// The effective resolution (after scaling) of the monitor in pixels.
   final Size resolution;
 
+  /// Calculated as `resolution.width / physical.cropToAspectRatio(resolution).width`.
   final double mmPerPixel;
 
   final double devicePixelRatio;
@@ -135,10 +136,13 @@ extension OffsetUnit on Offset {
   Offset unit(double Function(double scalar) fn) => Offset(fn(dx), fn(dy));
 }
 
+/// Implementation detail of [Millimeters].
+/// This Widget is used to manage the plugin subscriptions.
 @protected
 class MillimetersFromView extends StatefulWidget {
   const MillimetersFromView({super.key, required this.child});
 
+  /// Child that will be mounted below a [Millimeters] Widget.
   final Widget child;
 
   @override
@@ -147,6 +151,9 @@ class MillimetersFromView extends StatefulWidget {
 
 @protected
 class MillimetersFromViewState extends State<MillimetersFromView> {
+  /// The data provided by the plugin.
+  /// It does not include the `devicePixelRatio`.
+  /// To read the data, use the [Millimeters.of(context)] methods.
   var _data = MillimetersData(
     physical: Size.zero,
     resolution: Size.zero,
@@ -155,11 +162,11 @@ class MillimetersFromViewState extends State<MillimetersFromView> {
   StreamSubscription<Size>? _physical;
   StreamSubscription<Size>? _resolution;
 
-  bool get isInitialized => !_data.isEmpty;
-
   final Completer<MillimetersData> _initialized = Completer<MillimetersData>();
 
+  /// Wait until data from the [MillimetersPlatform] is available.
   Future<MillimetersData> get initialize => _initialized.future;
+  bool get isInitialized => !_data.isEmpty;
 
   @override
   void initState() {
@@ -181,7 +188,10 @@ class MillimetersFromViewState extends State<MillimetersFromView> {
     });
 
     (sizeSet, resolutionSet).wait.then((_) {
-      _initialized.complete(_data);
+      // Should only be `false` if the widget has been disposed before the data is available
+      if (!_initialized.isCompleted) {
+        _initialized.complete(_data);
+      }
     });
 
     _resolution?.cancel();
@@ -207,6 +217,9 @@ class MillimetersFromViewState extends State<MillimetersFromView> {
   void dispose() {
     _physical?.cancel();
     _resolution?.cancel();
+    if (!_initialized.isCompleted) {
+      _initialized.completeError(StateError('MillimetersFromView disposed'));
+    }
     super.dispose();
   }
 
@@ -226,6 +239,12 @@ class MillimetersFromViewState extends State<MillimetersFromView> {
 
   @override
   Widget build(BuildContext context) {
-    return Millimeters(data: _data, child: widget.child);
+    // This isn't actually necessary if people use the Millimeters.of(context) methods.
+    // But it doesn't cost anything, so why not.
+    final devicePixelRatio = MediaQuery.maybeDevicePixelRatioOf(context);
+    return Millimeters(
+      data: _data.copyWith(devicePixelRatio: devicePixelRatio),
+      child: widget.child,
+    );
   }
 }

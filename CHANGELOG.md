@@ -1,3 +1,8 @@
+## 0.2
+
+Fix: Divide calculated mm size by pixel ratio
+Feat: Support Android
+
 ## 0.1.1
 
 Fix #5 - desktops with resolutions different than the monitor size work properly now.
