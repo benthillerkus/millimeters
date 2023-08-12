@@ -1,4 +1,4 @@
-## 0.2
+## 0.2.0
 
 Fix: Divide calculated mm size by pixel ratio
 Feat: Support Android
