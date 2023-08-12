@@ -1,5 +1,5 @@
-![GitHub](https://img.shields.io/github/license/benthillerkus/millimeters)
-![Pub Points](https://img.shields.io/pub/points/millimeters)
+[![GitHub](https://img.shields.io/github/license/benthillerkus/millimeters)](https://github.com/benthillerkus/millimeters#MIT-1)
+[![Pub Points](https://img.shields.io/pub/points/millimeters)](https://pub.dev/packages/millimeters/score)
 
 
 A Flutter plugin for determining the physical device screen size in millimeters.
