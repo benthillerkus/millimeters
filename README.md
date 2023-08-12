@@ -17,8 +17,8 @@ There are probably seldom cases where you actually want physically consistent si
 
 |                       | Windows | Linux | macOS | Web | Android | iOS |
 |-----------------------|:-------:|:-----:|:-----:|:---:|:-------:|:---:|
-| Resolution            | ✔️ || ✔️ | ✔️ |||
-| Physical Size         | ✔️ || ✔️ | ✔️[^1] |||
+| Resolution            | ✔️ || ✔️ | ✔️ | ✔️ ||
+| Physical Size         | ✔️ || ✔️ | ✔️[^1] | ✔️ ||
 | Multi Window          |||||||
 | Multi Monitor         | ✔️ ||||||
 | Handle Screen Scaling | ✔️ || ✔️ ||||
