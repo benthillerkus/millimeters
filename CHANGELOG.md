@@ -1,3 +1,6 @@
+## 0.3.0
+- **FIX**: Support Gradle 8.0 (thanks @dikatok)
+
 ## 0.2.0
 
 - **FIX**: Support pixel ratios (scaling)
