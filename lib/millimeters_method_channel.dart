@@ -42,8 +42,8 @@ class MethodChannelMillimeters extends MillimetersPlatform {
 
   @override
   Future<Size?> getSize() async {
-    final size = await methodChannel
-        .invokeMethod<Map<Object?, Object?>>('getSize');
+    final size =
+        await methodChannel.invokeMethod<Map<Object?, Object?>>('getSize');
 
     return switch (size) {
       {"Width": 0 as num, "Height": 0 as num} => null,

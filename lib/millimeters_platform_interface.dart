@@ -23,7 +23,8 @@ abstract class MillimetersPlatform extends PlatformInterface {
   /// The default instance of [MillimetersPlatform] to use.
   ///
   /// Defaults to [MethodChannelMillimeters].
-  static MillimetersPlatform get instance => _instance ??= MethodChannelMillimeters();
+  static MillimetersPlatform get instance =>
+      _instance ??= MethodChannelMillimeters();
 
   /// Platform-specific implementations should set this with their own
   /// platform-specific class that extends [MillimetersPlatform] when
